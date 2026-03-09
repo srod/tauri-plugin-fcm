@@ -27,7 +27,10 @@ class FcmPlugin: Plugin, MessagingDelegate {
         UIApplication.shared.registerForRemoteNotifications()
       }
     #else
-      try? trigger("push-error", data: ["error": "Push notifications not available on simulator"])
+      // Defer so JS event listeners have time to attach after plugin init.
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+        try? self?.trigger("push-error", data: ["error": "Push notifications not available on simulator"])
+      }
     #endif
   }
 
@@ -55,15 +58,10 @@ class FcmPlugin: Plugin, MessagingDelegate {
   }
 
   @objc public func requestPermission(_ invoke: Invoke) throws {
-    var sound = true
-    var badge = true
-    var alert = true
-
-    if let options = try? invoke.getArgs().getObject("options") {
-      sound = options.getBool("sound") ?? true
-      badge = options.getBool("badge") ?? true
-      alert = options.getBool("alert") ?? true
-    }
+    let args = try? invoke.getArgs()
+    let sound = args?.getBool("sound") ?? true
+    let badge = args?.getBool("badge") ?? true
+    let alert = args?.getBool("alert") ?? true
 
     var options: UNAuthorizationOptions = []
     if sound {

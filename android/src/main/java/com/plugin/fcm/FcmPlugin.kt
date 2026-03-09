@@ -28,6 +28,8 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
     companion object {
         var instance: FcmPlugin? = null
         private const val FCM_PERMISSION_REQUEST_CODE = 1001
+        private const val PREFS_NAME = "fcm_plugin"
+        private const val KEY_PERMISSION_REQUESTED = "permission_requested"
     }
 
     private var pendingPermissionInvoke: Invoke? = null
@@ -46,7 +48,7 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
                 invoke.resolve(ret)
             } else {
                 // Fallback: check SharedPreferences for token buffered during cold start
-                val prefs = activity.getSharedPreferences("fcm_plugin", Activity.MODE_PRIVATE)
+                val prefs = activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE)
                 val buffered = prefs.getString("fcm_token", null)
                 if (buffered != null) {
                     prefs.edit().remove("fcm_token").apply()
@@ -71,13 +73,16 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
                 val ret = JSObject()
                 ret.put("status", "granted")
                 invoke.resolve(ret)
+            } else if (pendingPermissionInvoke != null) {
+                // A permission dialog is already showing — reject this call
+                // rather than starting a second platform request on the same
+                // request code, which would orphan or mis-route callbacks.
+                invoke.reject("A permission request is already in progress")
             } else {
-                // Request POST_NOTIFICATIONS permission at runtime (Android 13+)
                 activity.requestPermissions(
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                     FCM_PERMISSION_REQUEST_CODE
                 )
-                // Result handled in onRequestPermissionsResult; store invoke for callback
                 pendingPermissionInvoke = invoke
             }
         } else {
@@ -96,8 +101,23 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
         if (requestCode == FCM_PERMISSION_REQUEST_CODE) {
             val invoke = pendingPermissionInvoke ?: return
             pendingPermissionInvoke = null
-            val granted = grantResults.isNotEmpty() &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+            // Empty grantResults means the request was canceled/interrupted
+            // (e.g. another activity was launched mid-dialog). The user never
+            // made a choice, so report not_determined and don't set the flag.
+            if (grantResults.isEmpty()) {
+                val ret = JSObject()
+                ret.put("status", "not_determined")
+                invoke.resolve(ret)
+                return
+            }
+
+            val granted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+            // Only record after the OS returned a definitive answer.
+            activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE)
+                .edit().putBoolean(KEY_PERMISSION_REQUESTED, true).apply()
+
             val ret = JSObject()
             ret.put("status", if (granted) "granted" else "denied")
             invoke.resolve(ret)
@@ -112,7 +132,13 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
                 activity,
                 Manifest.permission.POST_NOTIFICATIONS
             )
-            ret.put("status", if (status == PackageManager.PERMISSION_GRANTED) "granted" else "denied")
+            if (status == PackageManager.PERMISSION_GRANTED) {
+                ret.put("status", "granted")
+            } else {
+                val prefs = activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE)
+                val everRequested = prefs.getBoolean(KEY_PERMISSION_REQUESTED, false)
+                ret.put("status", if (everRequested) "denied" else "not_determined")
+            }
         } else {
             val enabled = NotificationManagerCompat.from(activity).areNotificationsEnabled()
             ret.put("status", if (enabled) "granted" else "denied")
