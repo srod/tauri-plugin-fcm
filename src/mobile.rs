@@ -3,7 +3,7 @@ use tauri::{
     AppHandle, Runtime,
 };
 
-use crate::models::{FcmToken, PermissionStatus};
+use crate::models::{CreateChannelArgs, FcmToken, PermissionStatus, SendNotificationArgs};
 
 #[cfg(target_os = "android")]
 const PLUGIN_IDENTIFIER: &str = "com.plugin.fcm";
@@ -36,6 +36,18 @@ impl<R: Runtime> Fcm<R> {
     pub fn delete_token(&self) -> crate::Result<()> {
         self.0
             .run_mobile_plugin("deleteToken", ())
+            .map_err(Into::into)
+    }
+
+    pub fn create_channel(&self, args: CreateChannelArgs) -> crate::Result<()> {
+        self.0
+            .run_mobile_plugin("createChannel", args)
+            .map_err(Into::into)
+    }
+
+    pub fn send_notification(&self, args: SendNotificationArgs) -> crate::Result<()> {
+        self.0
+            .run_mobile_plugin("sendNotification", args)
             .map_err(Into::into)
     }
 }

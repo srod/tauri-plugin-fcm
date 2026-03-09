@@ -307,6 +307,18 @@
           "markdownDescription": "Denies the check_permissions command without any pre-configured scope."
         },
         {
+          "description": "Enables the create_channel command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-create-channel",
+          "markdownDescription": "Enables the create_channel command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the create_channel command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-create-channel",
+          "markdownDescription": "Denies the create_channel command without any pre-configured scope."
+        },
+        {
           "description": "Enables the delete_token command without any pre-configured scope.",
           "type": "string",
           "const": "allow-delete-token",
@@ -355,10 +367,22 @@
           "markdownDescription": "Denies the request_permissions command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`",
+          "description": "Enables the send_notification command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-send-notification",
+          "markdownDescription": "Enables the send_notification command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the send_notification command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-send-notification",
+          "markdownDescription": "Denies the send_notification command without any pre-configured scope."
+        },
+        {
+          "description": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`\n- `allow-create-channel`\n- `allow-send-notification`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`"
+          "markdownDescription": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`\n- `allow-create-channel`\n- `allow-send-notification`"
         }
       ]
     }

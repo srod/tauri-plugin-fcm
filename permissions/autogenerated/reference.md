@@ -9,6 +9,8 @@ Default permissions for the FCM plugin
 - `allow-check-permissions`
 - `allow-register`
 - `allow-delete-token`
+- `allow-create-channel`
+- `allow-send-notification`
 
 ## Permission Table
 
@@ -41,6 +43,32 @@ Enables the check_permissions command without any pre-configured scope.
 <td>
 
 Denies the check_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:allow-create-channel`
+
+</td>
+<td>
+
+Enables the create_channel command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:deny-create-channel`
+
+</td>
+<td>
+
+Denies the create_channel command without any pre-configured scope.
 
 </td>
 </tr>
@@ -145,6 +173,32 @@ Enables the request_permissions command without any pre-configured scope.
 <td>
 
 Denies the request_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:allow-send-notification`
+
+</td>
+<td>
+
+Enables the send_notification command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:deny-send-notification`
+
+</td>
+<td>
+
+Denies the send_notification command without any pre-configured scope.
 
 </td>
 </tr>

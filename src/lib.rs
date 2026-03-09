@@ -35,6 +35,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             commands::check_permissions,
             commands::register,
             commands::delete_token,
+            commands::create_channel,
+            commands::send_notification,
         ])
         .setup(|app, api| {
             let plugin = platform::init(app, api)?;

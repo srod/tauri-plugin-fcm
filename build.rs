@@ -4,6 +4,8 @@ const COMMANDS: &[&str] = &[
     "check_permissions",
     "register",
     "delete_token",
+    "create_channel",
+    "send_notification",
 ];
 
 fn main() {
