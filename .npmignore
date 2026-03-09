@@ -1,0 +1,13 @@
+ios/
+android/
+src/
+examples/
+guest-js/
+.sisyphus/
+target/
+.git/
+.gitignore
+rollup.config.js
+tsconfig.json
+*.ts
+!dist-js/**/*.d.ts

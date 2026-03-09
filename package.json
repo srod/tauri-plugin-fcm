@@ -1,0 +1,35 @@
+{
+  "name": "tauri-plugin-fcm",
+  "version": "0.1.0",
+  "description": "Tauri 2 plugin for Firebase Cloud Messaging (FCM) — iOS APNs→FCM token exchange + Android FCM",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "main": "dist-js/index.js",
+  "types": "dist-js/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tauri-apps/tauri-plugin-fcm"
+  },
+  "files": ["dist-js", "README.md", "LICENSE-MIT", "LICENSE-APACHE"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@tauri-apps/api": ">=2.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "typescript": "^5.0.0",
+    "@rollup/plugin-typescript": "^12.0.0",
+    "rollup": "^4.0.0",
+    "tslib": "^2.6.0"
+  },
+  "keywords": ["tauri", "tauri-plugin", "fcm", "firebase", "push-notifications", "ios", "android"]
+}
