@@ -90,7 +90,7 @@ import {
 - `granted`
 - `denied`
 - `prompt`
-- `prompt-with-rationale`
+- `prompt-with-rationale` (Android only)
 
 ## Usage
 

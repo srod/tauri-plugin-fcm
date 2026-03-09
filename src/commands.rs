@@ -1,11 +1,7 @@
 use tauri::{AppHandle, Manager, Runtime};
 
-use crate::models::{FcmToken, PermissionStatus};
-
-#[cfg(not(mobile))]
-use crate::desktop as platform;
-#[cfg(mobile)]
 use crate::mobile as platform;
+use crate::models::{FcmToken, PermissionStatus};
 
 #[tauri::command]
 pub async fn get_token<R: Runtime>(app: AppHandle<R>) -> crate::Result<FcmToken> {
