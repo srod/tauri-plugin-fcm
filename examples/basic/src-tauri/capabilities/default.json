@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability for the FCM example app",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "fcm:default"
+  ]
+}

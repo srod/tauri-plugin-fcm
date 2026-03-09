@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicegui-org/nicegui/refs/heads/main/nicegui/static/tauri_config_v2_schema.json",
+  "productName": "FCM Example",
+  "identifier": "com.example.fcm",
+  "version": "0.1.0",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "FCM Example",
+        "width": 800,
+        "height": 600
+      }
+    ]
+  },
+  "bundle": {
+    "active": true
+  }
+}
