@@ -2,17 +2,38 @@ package com.plugin.fcm
 
 import android.Manifest
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.webkit.WebView
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import app.tauri.annotation.Command
+import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.Invoke
 import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
 import com.google.firebase.messaging.FirebaseMessaging
+import java.util.concurrent.atomic.AtomicInteger
+
+@InvokeArg
+data class CreateChannelArgs(
+    val id: String,
+    val name: String,
+    val importance: Int
+)
+
+@InvokeArg
+data class SendNotificationArgs(
+    val title: String,
+    val body: String?,
+    val icon: String?,
+    val id: Int?,
+    val channelId: String?
+)
 
 @TauriPlugin
 class FcmPlugin(private val activity: Activity) : Plugin(activity) {
@@ -25,6 +46,7 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     private var pendingPermissionInvoke: Invoke? = null
+    private val notificationIdCounter = AtomicInteger(0)
 
     override fun load(webView: WebView) {
         super.load(webView)
@@ -162,5 +184,45 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
                 invoke.reject(task.exception?.message ?: "Failed to delete FCM token")
             }
         }
+    }
+
+    @Command
+    fun createChannel(invoke: Invoke) {
+        val args = invoke.parseArgs(CreateChannelArgs::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(args.id, args.name, args.importance)
+            NotificationManagerCompat.from(activity).createNotificationChannel(channel)
+            invoke.resolve()
+        } else {
+            invoke.resolve()
+        }
+    }
+
+    @Command
+    fun sendNotification(invoke: Invoke) {
+        val args = invoke.parseArgs(SendNotificationArgs::class.java)
+        
+        val resolvedIcon = if (args.icon != null) {
+            val id = activity.resources.getIdentifier(args.icon, "drawable", activity.packageName)
+            if (id != 0) id else activity.applicationInfo.icon
+        } else {
+            activity.applicationInfo.icon
+        }
+        
+        val builder = NotificationCompat.Builder(activity, args.channelId ?: "default")
+            .setContentTitle(args.title)
+            .setSmallIcon(resolvedIcon)
+            .setAutoCancel(true)
+        
+        if (args.body != null) {
+            builder.setContentText(args.body)
+        }
+        
+        val notification = builder.build()
+        NotificationManagerCompat.from(activity).notify(
+            args.id ?: notificationIdCounter.incrementAndGet(),
+            notification
+        )
+        invoke.resolve()
     }
 }
