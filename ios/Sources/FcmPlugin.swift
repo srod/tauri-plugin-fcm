@@ -22,9 +22,10 @@ struct SendNotificationArgs: Decodable {
   let channelId: String?
 }
 
-class FcmPlugin: Plugin, MessagingDelegate {
+class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
 
   private let tokenBuffer = TokenBuffer()
+  private weak var previousNotificationDelegate: UNUserNotificationCenterDelegate?
 
   // MARK: - Lifecycle
 
@@ -34,6 +35,8 @@ class FcmPlugin: Plugin, MessagingDelegate {
     }
 
     Messaging.messaging().delegate = self
+    previousNotificationDelegate = UNUserNotificationCenter.current().delegate
+    UNUserNotificationCenter.current().delegate = self
 
     AppDelegateSwizzler.plugin = self
     AppDelegateSwizzler.swizzlePushCallbacks()
@@ -156,6 +159,34 @@ class FcmPlugin: Plugin, MessagingDelegate {
       } else {
         invoke.resolve()
       }
+    }
+  }
+
+  // MARK: - UNUserNotificationCenterDelegate
+
+  func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    if let previous = previousNotificationDelegate,
+       previous.responds(to: #selector(UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:))) {
+      previous.userNotificationCenter?(center, willPresent: notification, withCompletionHandler: completionHandler)
+    } else {
+      completionHandler([.banner, .sound])
+    }
+  }
+
+  func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    if let previous = previousNotificationDelegate,
+       previous.responds(to: #selector(UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:))) {
+      previous.userNotificationCenter?(center, didReceive: response, withCompletionHandler: completionHandler)
+    } else {
+      completionHandler()
     }
   }
 

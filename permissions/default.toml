@@ -6,4 +6,6 @@ permissions = [
     "allow-check-permissions",
     "allow-register",
     "allow-delete-token",
+    "allow-create-channel",
+    "allow-send-notification",
 ]

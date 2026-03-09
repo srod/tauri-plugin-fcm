@@ -34,6 +34,34 @@ export interface PushErrorEvent {
 }
 
 /**
+ * Options for creating a notification channel (Android only).
+ */
+export interface CreateChannelOptions extends Record<string, unknown> {
+  /** Unique identifier for the channel */
+  id: string;
+  /** Display name for the channel */
+  name: string;
+  /** Importance level for the channel (0-5) */
+  importance: number;
+}
+
+/**
+ * Options for sending a notification.
+ */
+export interface SendNotificationOptions extends Record<string, unknown> {
+  /** Notification title */
+  title: string;
+  /** Notification body text */
+  body?: string;
+  /** Icon identifier or URL */
+  icon?: string;
+  /** Notification ID */
+  id?: number;
+  /** Channel ID (Android) */
+  channelId?: string;
+}
+
+/**
  * Retrieves the current FCM registration token.
  * @returns Promise resolving to an object containing the FCM token
  * @throws Error if token retrieval fails
@@ -104,4 +132,28 @@ export async function onPushError(
   handler: (event: PushErrorEvent) => void,
 ): Promise<PluginListener> {
   return await addPluginListener("fcm", "push-error", handler);
+}
+
+/**
+ * Creates a notification channel (Android only, no-op on iOS).
+ * @param options - Channel configuration options
+ * @returns Promise that resolves when channel creation is complete
+ * @throws Error if channel creation fails
+ */
+export async function createChannel(
+  options: CreateChannelOptions,
+): Promise<void> {
+  await invoke("plugin:fcm|create_channel", options);
+}
+
+/**
+ * Sends a notification to the user.
+ * @param options - Notification configuration options
+ * @returns Promise that resolves when notification is sent
+ * @throws Error if notification sending fails
+ */
+export async function sendNotification(
+  options: SendNotificationOptions,
+): Promise<void> {
+  await invoke("plugin:fcm|send_notification", options);
 }

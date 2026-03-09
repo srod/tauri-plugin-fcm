@@ -66,12 +66,14 @@ Add the capability permission:
 ```ts
 import {
   checkPermissions,
+  createChannel,
   deleteToken,
   getToken,
   onPushError,
   onTokenRefresh,
   register,
   requestPermissions,
+  sendNotification,
 } from "tauri-plugin-fcm";
 ```
 
@@ -82,6 +84,8 @@ import {
 - `register(): Promise<void>`
 - `getToken(): Promise<{ token: string }>`
 - `deleteToken(): Promise<void>`
+- `createChannel(options: CreateChannelOptions): Promise<void>`
+- `sendNotification(options: SendNotificationOptions): Promise<void>`
 - `onTokenRefresh(handler): Promise<PluginListener>`
 - `onPushError(handler): Promise<PluginListener>`
 
@@ -92,7 +96,41 @@ import {
 - `prompt`
 - `prompt-with-rationale` (Android only)
 
+### Types
+
+#### `CreateChannelOptions`
+
+```ts
+interface CreateChannelOptions {
+  /** Unique identifier for the channel */
+  id: string;
+  /** Display name for the channel */
+  name: string;
+  /** Importance level for the channel (0-5) */
+  importance: number;
+}
+```
+
+#### `SendNotificationOptions`
+
+```ts
+interface SendNotificationOptions {
+  /** Notification title */
+  title: string;
+  /** Notification body text */
+  body?: string;
+  /** Icon identifier or URL */
+  icon?: string;
+  /** Notification ID */
+  id?: number;
+  /** Channel ID (Android) */
+  channelId?: string;
+}
+```
+
 ## Usage
+
+### Basic Setup
 
 ```ts
 import {
@@ -129,6 +167,26 @@ await tokenListener.unregister();
 await errorListener.unregister();
 ```
 
+### Sending Notifications
+
+```ts
+import { createChannel, sendNotification } from "tauri-plugin-fcm";
+
+// Create a notification channel (Android only, no-op on iOS)
+await createChannel({
+  id: "default",
+  name: "Default Notifications",
+  importance: 4,
+});
+
+// Send a notification
+await sendNotification({
+  title: "Hello",
+  body: "This is a test notification",
+  channelId: "default",
+});
+```
+
 ## Platform setup
 
 ### iOS
@@ -149,6 +207,8 @@ await errorListener.unregister();
 - This is a mobile-only plugin. If you share Tauri setup code across desktop and mobile targets, gate registration with `#[cfg(mobile)]`.
 - On Android, `register()` is effectively a no-op because FCM registration is automatic.
 - On iOS simulators, remote notification transport is unavailable. The plugin emits `push-error` instead of crashing.
+- `createChannel()` is Android-only and is a no-op on iOS.
+- On Android API 26+, calling `sendNotification()` before `createChannel()` will silently drop the notification.
 
 ## License
 

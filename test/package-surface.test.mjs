@@ -41,6 +41,8 @@ test("esm build exports canonical permission helpers", async () => {
   assert.equal(typeof mod.requestPermissions, "function");
   assert.equal(typeof mod.checkPermissions, "function");
   assert.equal(typeof mod.requestPermission, "undefined");
+  assert.equal(typeof mod.createChannel, "function");
+  assert.equal(typeof mod.sendNotification, "function");
 });
 
 test("cjs build exports the same public API", () => {
@@ -49,4 +51,6 @@ test("cjs build exports the same public API", () => {
   assert.equal(typeof mod.requestPermissions, "function");
   assert.equal(typeof mod.checkPermissions, "function");
   assert.equal(typeof mod.requestPermission, "undefined");
+  assert.equal(typeof mod.createChannel, "function");
+  assert.equal(typeof mod.sendNotification, "function");
 });

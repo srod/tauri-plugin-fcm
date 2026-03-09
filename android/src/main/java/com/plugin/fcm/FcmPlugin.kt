@@ -198,6 +198,20 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
         }
     }
 
+    private fun ensureDefaultChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = NotificationManagerCompat.from(activity)
+            if (manager.getNotificationChannel("default") == null) {
+                val channel = NotificationChannel(
+                    "default",
+                    "Default",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
+                manager.createNotificationChannel(channel)
+            }
+        }
+    }
+
     @Command
     fun sendNotification(invoke: Invoke) {
         val args = invoke.parseArgs(SendNotificationArgs::class.java)
@@ -209,7 +223,12 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
             activity.applicationInfo.icon
         }
         
-        val builder = NotificationCompat.Builder(activity, args.channelId ?: "default")
+        val effectiveChannelId = args.channelId ?: "default"
+        if (effectiveChannelId == "default") {
+            ensureDefaultChannel()
+        }
+        
+        val builder = NotificationCompat.Builder(activity, effectiveChannelId)
             .setContentTitle(args.title)
             .setSmallIcon(resolvedIcon)
             .setAutoCancel(true)
