@@ -57,24 +57,8 @@ class FcmPlugin: Plugin, MessagingDelegate {
     }
   }
 
-  @objc public func requestPermission(_ invoke: Invoke) throws {
-    let args = try? invoke.getArgs()
-    let sound = args?.getBool("sound") ?? true
-    let badge = args?.getBool("badge") ?? true
-    let alert = args?.getBool("alert") ?? true
-
-    var options: UNAuthorizationOptions = []
-    if sound {
-      options.insert(.sound)
-    }
-    if badge {
-      options.insert(.badge)
-    }
-    if alert {
-      options.insert(.alert)
-    }
-
-    UNUserNotificationCenter.current().requestAuthorization(options: options) { granted, error in
+  @objc public func requestPermissions(_ invoke: Invoke) throws {
+    UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge, .alert]) { granted, error in
       if let error = error {
         invoke.reject(error.localizedDescription)
         return
@@ -88,7 +72,7 @@ class FcmPlugin: Plugin, MessagingDelegate {
         #endif
       }
 
-      invoke.resolve(["status": granted ? "granted" : "denied"])
+      invoke.resolve(["notification": granted ? "granted" : "denied"])
     }
   }
 
@@ -102,12 +86,12 @@ class FcmPlugin: Plugin, MessagingDelegate {
       case .denied:
         status = "denied"
       case .notDetermined:
-        status = "not_determined"
+        status = "prompt"
       @unknown default:
-        status = "not_determined"
+        status = "prompt"
       }
 
-      invoke.resolve(["status": status])
+      invoke.resolve(["notification": status])
     }
   }
 

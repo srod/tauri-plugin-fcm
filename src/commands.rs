@@ -1,6 +1,6 @@
 use tauri::{AppHandle, Manager, Runtime};
 
-use crate::models::{FcmToken, PermissionOptions, PermissionStatus};
+use crate::models::{FcmToken, PermissionStatus};
 
 #[cfg(not(mobile))]
 use crate::desktop as platform;
@@ -13,18 +13,10 @@ pub async fn get_token<R: Runtime>(app: AppHandle<R>) -> crate::Result<FcmToken>
 }
 
 #[tauri::command]
-pub async fn request_permission<R: Runtime>(
-    app: AppHandle<R>,
-    options: Option<PermissionOptions>,
-) -> crate::Result<PermissionStatus> {
-    let opts = options.unwrap_or(PermissionOptions {
-        sound: None,
-        badge: None,
-        alert: None,
-    });
+pub async fn request_permissions<R: Runtime>(app: AppHandle<R>) -> crate::Result<PermissionStatus> {
     app.state::<platform::Fcm<R>>()
         .inner()
-        .request_permission(opts)
+        .request_permissions()
 }
 
 #[tauri::command]

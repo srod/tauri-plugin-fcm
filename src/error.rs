@@ -4,8 +4,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("FCM is only available on mobile platforms")]
-    MobileOnly,
     #[error("{0}")]
     Invoke(String),
 }

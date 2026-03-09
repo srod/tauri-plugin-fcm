@@ -1,4 +1,11 @@
-import { invoke, addPluginListener, type PluginListener } from "@tauri-apps/api/core";
+import {
+  addPluginListener,
+  checkPermissions as checkPermissions_,
+  invoke,
+  type PermissionState,
+  type PluginListener,
+  requestPermissions as requestPermissions_,
+} from "@tauri-apps/api/core";
 
 /**
  * Represents an FCM token response.
@@ -8,25 +15,7 @@ export interface FcmToken {
   token: string;
 }
 
-/**
- * Represents the current notification permission status.
- */
-export interface PermissionStatus {
-  /** Permission status: "granted", "denied", or "not_determined" */
-  status: "granted" | "denied" | "not_determined";
-}
-
-/**
- * Options for requesting notification permissions.
- */
-export interface PermissionOptions {
-  /** Enable sound notifications (default: true) */
-  sound?: boolean;
-  /** Enable badge notifications (default: true) */
-  badge?: boolean;
-  /** Enable alert notifications (default: true) */
-  alert?: boolean;
-}
+export type { PermissionState } from "@tauri-apps/api/core";
 
 /**
  * Event emitted when FCM token is refreshed.
@@ -55,21 +44,24 @@ export async function getToken(): Promise<FcmToken> {
 
 /**
  * Requests notification permissions from the user.
- * @param options - Optional permission configuration (sound, badge, alert)
- * @returns Promise resolving to the permission status
+ * @returns Promise resolving to the notification permission state
  * @throws Error if permission request fails
  */
-export async function requestPermission(options?: PermissionOptions): Promise<PermissionStatus> {
-  return await invoke<PermissionStatus>("plugin:fcm|request_permission", { options });
+export async function requestPermissions(): Promise<PermissionState> {
+  return await requestPermissions_<{ notification: PermissionState }>(
+    "fcm",
+  ).then((result) => result.notification);
 }
 
 /**
  * Checks the current notification permission status.
- * @returns Promise resolving to the current permission status
+ * @returns Promise resolving to the current notification permission state
  * @throws Error if permission check fails
  */
-export async function checkPermissions(): Promise<PermissionStatus> {
-  return await invoke<PermissionStatus>("plugin:fcm|check_permissions");
+export async function checkPermissions(): Promise<PermissionState> {
+  return await checkPermissions_<{ notification: PermissionState }>("fcm").then(
+    (result) => result.notification,
+  );
 }
 
 /**
@@ -97,7 +89,9 @@ export async function deleteToken(): Promise<void> {
  * @param handler - Callback function invoked when token is refreshed
  * @returns Promise resolving to a PluginListener that can be used to unlisten
  */
-export async function onTokenRefresh(handler: (event: TokenRefreshEvent) => void): Promise<PluginListener> {
+export async function onTokenRefresh(
+  handler: (event: TokenRefreshEvent) => void,
+): Promise<PluginListener> {
   return await addPluginListener("fcm", "token-refresh", handler);
 }
 
@@ -106,6 +100,8 @@ export async function onTokenRefresh(handler: (event: TokenRefreshEvent) => void
  * @param handler - Callback function invoked when a push error occurs
  * @returns Promise resolving to a PluginListener that can be used to unlisten
  */
-export async function onPushError(handler: (event: PushErrorEvent) => void): Promise<PluginListener> {
+export async function onPushError(
+  handler: (event: PushErrorEvent) => void,
+): Promise<PluginListener> {
   return await addPluginListener("fcm", "push-error", handler);
 }

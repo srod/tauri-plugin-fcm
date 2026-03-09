@@ -8,19 +8,11 @@ import android.webkit.WebView
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import app.tauri.annotation.Command
-import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.Invoke
 import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
 import com.google.firebase.messaging.FirebaseMessaging
-
-@InvokeArg
-class PermissionOptions {
-    var sound: Boolean? = null
-    var badge: Boolean? = null
-    var alert: Boolean? = null
-}
 
 @TauriPlugin
 class FcmPlugin(private val activity: Activity) : Plugin(activity) {
@@ -37,6 +29,12 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
     override fun load(webView: WebView) {
         super.load(webView)
         instance = this
+    }
+
+    private fun permissionStatus(value: String): JSObject {
+        val ret = JSObject()
+        ret.put("notification", value)
+        return ret
     }
 
     @Command
@@ -63,16 +61,14 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
     }
 
     @Command
-    fun requestPermission(invoke: Invoke) {
+    fun requestPermissions(invoke: Invoke) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val status = ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.POST_NOTIFICATIONS
             )
             if (status == PackageManager.PERMISSION_GRANTED) {
-                val ret = JSObject()
-                ret.put("status", "granted")
-                invoke.resolve(ret)
+                invoke.resolve(permissionStatus("granted"))
             } else if (pendingPermissionInvoke != null) {
                 // A permission dialog is already showing — reject this call
                 // rather than starting a second platform request on the same
@@ -86,10 +82,8 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
                 pendingPermissionInvoke = invoke
             }
         } else {
-            // Below Android 13: notifications auto-granted
-            val ret = JSObject()
-            ret.put("status", "granted")
-            invoke.resolve(ret)
+            val enabled = NotificationManagerCompat.from(activity).areNotificationsEnabled()
+            invoke.resolve(permissionStatus(if (enabled) "granted" else "denied"))
         }
     }
 
@@ -104,11 +98,9 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
 
             // Empty grantResults means the request was canceled/interrupted
             // (e.g. another activity was launched mid-dialog). The user never
-            // made a choice, so report not_determined and don't set the flag.
+            // made a choice, so report prompt and don't set the flag.
             if (grantResults.isEmpty()) {
-                val ret = JSObject()
-                ret.put("status", "not_determined")
-                invoke.resolve(ret)
+                invoke.resolve(permissionStatus("prompt"))
                 return
             }
 
@@ -118,32 +110,41 @@ class FcmPlugin(private val activity: Activity) : Plugin(activity) {
             activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE)
                 .edit().putBoolean(KEY_PERMISSION_REQUESTED, true).apply()
 
-            val ret = JSObject()
-            ret.put("status", if (granted) "granted" else "denied")
-            invoke.resolve(ret)
+            val deniedState =
+                if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    "prompt-with-rationale"
+                } else {
+                    "denied"
+                }
+
+            invoke.resolve(permissionStatus(if (granted) "granted" else deniedState))
         }
     }
 
     @Command
     fun checkPermissions(invoke: Invoke) {
-        val ret = JSObject()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val status = ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.POST_NOTIFICATIONS
             )
             if (status == PackageManager.PERMISSION_GRANTED) {
-                ret.put("status", "granted")
+                invoke.resolve(permissionStatus("granted"))
             } else {
                 val prefs = activity.getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE)
                 val everRequested = prefs.getBoolean(KEY_PERMISSION_REQUESTED, false)
-                ret.put("status", if (everRequested) "denied" else "not_determined")
+                val deniedState =
+                    if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                        "prompt-with-rationale"
+                    } else {
+                        "denied"
+                    }
+                invoke.resolve(permissionStatus(if (everRequested) deniedState else "prompt"))
             }
         } else {
             val enabled = NotificationManagerCompat.from(activity).areNotificationsEnabled()
-            ret.put("status", if (enabled) "granted" else "denied")
+            invoke.resolve(permissionStatus(if (enabled) "granted" else "denied"))
         }
-        invoke.resolve(ret)
     }
 
     @Command

@@ -5,7 +5,7 @@ Default permissions for the FCM plugin
 #### This default permission set includes the following:
 
 - `allow-get-token`
-- `allow-request-permission`
+- `allow-request-permissions`
 - `allow-check-permissions`
 - `allow-register`
 - `allow-delete-token`
@@ -126,12 +126,12 @@ Denies the register command without any pre-configured scope.
 <tr>
 <td>
 
-`fcm:allow-request-permission`
+`fcm:allow-request-permissions`
 
 </td>
 <td>
 
-Enables the request_permission command without any pre-configured scope.
+Enables the request_permissions command without any pre-configured scope.
 
 </td>
 </tr>
@@ -139,12 +139,12 @@ Enables the request_permission command without any pre-configured scope.
 <tr>
 <td>
 
-`fcm:deny-request-permission`
+`fcm:deny-request-permissions`
 
 </td>
 <td>
 
-Denies the request_permission command without any pre-configured scope.
+Denies the request_permissions command without any pre-configured scope.
 
 </td>
 </tr>

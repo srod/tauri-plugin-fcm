@@ -4,41 +4,54 @@
 [![npm](https://img.shields.io/npm/v/tauri-plugin-fcm.svg)](https://www.npmjs.com/package/tauri-plugin-fcm)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](#license)
 
-Tauri 2 plugin for Firebase Cloud Messaging (FCM).
+Firebase Cloud Messaging for Tauri 2 mobile apps.
 
-This plugin bridges the gap for iOS push notifications in Tauri applications. While other plugins often return raw APNs hex tokens, `tauri-plugin-fcm` automatically exchanges them for FCM registration tokens, providing a unified interface for cross-platform push notification management.
+The plugin returns FCM registration tokens on both iOS and Android. On iOS it handles the APNs to FCM exchange so your app uses one token type across both platforms.
 
-## Installation
+| Platform | Supported |
+| --- | --- |
+| Android | Yes |
+| iOS | Yes |
+| macOS | No |
+| Windows | No |
+| Linux | No |
 
-1. Add the plugin to your `Cargo.toml`:
+## Install
+
+Add the Rust crate to `src-tauri/Cargo.toml`:
 
 ```toml
 [dependencies]
 tauri-plugin-fcm = "0.1.0"
 ```
 
-2. Install the JavaScript guest bindings:
+Install the JavaScript guest bindings:
 
-```bash
-npm install tauri-plugin-fcm
+```sh
+pnpm add tauri-plugin-fcm
+# or
+bun add tauri-plugin-fcm
+# or
+npm add tauri-plugin-fcm
 # or
 yarn add tauri-plugin-fcm
-# or
-pnpm add tauri-plugin-fcm
 ```
 
-3. Register the plugin in `src-tauri/src/lib.rs`:
+Register the plugin in your Tauri app:
 
 ```rust
 fn main() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_fcm::init())
+    let builder = tauri::Builder::default();
+    #[cfg(mobile)]
+    let builder = builder.plugin(tauri_plugin_fcm::init());
+
+    builder
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 ```
 
-4. Configure permissions in `src-tauri/capabilities/default.json`:
+Add the capability permission:
 
 ```json
 {
@@ -48,136 +61,98 @@ fn main() {
 }
 ```
 
-## Platform Setup
+## API
 
-### iOS
-
-1. Place your `GoogleService-Info.plist` in the root of your Xcode project and ensure it is added to the app bundle.
-2. In your `Info.plist`, set `FirebaseAppDelegateProxyEnabled` to `NO`:
-
-```xml
-<key>FirebaseAppDelegateProxyEnabled</key>
-<string>NO</string>
+```ts
+import {
+  checkPermissions,
+  deleteToken,
+  getToken,
+  onPushError,
+  onTokenRefresh,
+  register,
+  requestPermissions,
+} from "tauri-plugin-fcm";
 ```
 
-3. Add the `aps-environment` entitlement to your project.
-4. Ensure Firebase dependencies are resolved via Swift Package Manager in Xcode.
+### Functions
 
-### Android
+- `checkPermissions(): Promise<PermissionState>`
+- `requestPermissions(): Promise<PermissionState>`
+- `register(): Promise<void>`
+- `getToken(): Promise<{ token: string }>`
+- `deleteToken(): Promise<void>`
+- `onTokenRefresh(handler): Promise<PluginListener>`
+- `onPushError(handler): Promise<PluginListener>`
 
-1. Place your `google-services.json` in `src-tauri/gen/android/app`.
-2. Apply the Google Services plugin in your `build.gradle.kts`:
+`PermissionState` comes from `@tauri-apps/api/core` and can be:
 
-```kotlin
-plugins {
-    id("com.google.gms.google-services") version "4.4.0" apply false
-}
-```
-
-3. Ensure the necessary permissions are declared in `AndroidManifest.xml`.
-
-## API Reference
-
-### Commands
-
-| Command | Description | Returns |
-| --- | --- | --- |
-| `getToken()` | Retrieves the current FCM registration token. | `Promise<FcmToken>` |
-| `requestPermission(opts?)` | Requests notification permissions. | `Promise<PermissionStatus>` |
-| `checkPermissions()` | Checks current notification permission status. | `Promise<PermissionStatus>` |
-| `register()` | Registers the device for push notifications. | `Promise<void>` |
-| `deleteToken()` | Deletes the current FCM registration token. | `Promise<void>` |
-
-### Events
-
-| Event | Description | Payload |
-| --- | --- | --- |
-| `onTokenRefresh` | Emitted when the FCM token is refreshed. | `TokenRefreshEvent` |
-| `onPushError` | Emitted when a push notification error occurs. | `PushErrorEvent` |
-
-### Types
-
-```typescript
-interface FcmToken {
-  token: string;
-}
-
-interface PermissionStatus {
-  status: "granted" | "denied" | "not_determined";
-}
-
-interface PermissionOptions {
-  sound?: boolean;
-  badge?: boolean;
-  alert?: boolean;
-}
-
-interface TokenRefreshEvent {
-  token: string;
-}
-
-interface PushErrorEvent {
-  error: string;
-}
-```
+- `granted`
+- `denied`
+- `prompt`
+- `prompt-with-rationale`
 
 ## Usage
 
-```typescript
-import { 
-  getToken, 
-  onTokenRefresh, 
-  onPushError, 
-  requestPermission 
-} from 'tauri-plugin-fcm';
+```ts
+import {
+  checkPermissions,
+  getToken,
+  onPushError,
+  onTokenRefresh,
+  register,
+  requestPermissions,
+} from "tauri-plugin-fcm";
 
-// Request permissions
-const { status } = await requestPermission({
-  sound: true,
-  badge: true,
-  alert: true
-});
+let permission = await checkPermissions();
 
-if (status === 'granted') {
-  // Get current token
+if (permission === "prompt" || permission === "prompt-with-rationale") {
+  permission = await requestPermissions();
+}
+
+if (permission === "granted") {
+  await register();
   const { token } = await getToken();
-  console.log('FCM Token:', token);
+  console.log("FCM token:", token);
 }
 
-// Listen for token refreshes
-const unlistenRefresh = await onTokenRefresh((event) => {
-  console.log('New FCM Token:', event.token);
+const tokenListener = await onTokenRefresh((event) => {
+  console.log("New FCM token:", event.token);
 });
 
-// Handle push errors (e.g. on simulator)
-const unlistenError = await onPushError((event) => {
-  console.error('Push Error:', event.error);
+const errorListener = await onPushError((event) => {
+  console.error("Push error:", event.error);
 });
 
-// Delete token on logout
-async function logout() {
-  await deleteToken();
-  unlistenRefresh();
-  unlistenError();
-}
+// Later:
+await tokenListener.unregister();
+await errorListener.unregister();
 ```
 
-## Troubleshooting
+## Platform setup
 
-- **Simulator**: iOS simulators do not support APNs transport. The plugin will emit a `push-error` event instead of crashing. Use a physical device for testing push notifications.
-- **Missing Config Files**: Ensure `GoogleService-Info.plist` (iOS) and `google-services.json` (Android) are correctly placed and included in the build.
-- **Duplicate Symbols**: If you encounter duplicate symbol errors on iOS, ensure you are not manually linking Firebase libraries that are already included via Swift Package Manager.
-- **Permission Denied**: Verify that you have enabled the "Push Notifications" and "Background Modes" (Remote notifications) capabilities in Xcode.
+### iOS
 
-## Contributing
+1. Add `GoogleService-Info.plist` to your generated iOS project under `src-tauri/gen/apple/<app-name>_iOS/` and make sure it is included in the iOS app target.
+2. Enable the `aps-environment` entitlement.
+3. Enable Push Notifications and Background Modes with Remote notifications.
+4. If you disable `FirebaseAppDelegateProxyEnabled`, make sure APNs callbacks still reach Firebase.
 
-Contributions are welcome! Please read our contributing guidelines before submitting a pull request.
+### Android
+
+1. Add `google-services.json` to `src-tauri/gen/android/app`.
+2. Apply the Google Services Gradle plugin in the Android app.
+3. Keep `POST_NOTIFICATIONS` available for Android 13 and later.
+
+## Notes
+
+- This is a mobile-only plugin. If you share Tauri setup code across desktop and mobile targets, gate registration with `#[cfg(mobile)]`.
+- On Android, `register()` is effectively a no-op because FCM registration is automatic.
+- On iOS simulators, remote notification transport is unavailable. The plugin emits `push-error` instead of crashing.
 
 ## License
 
-This plugin is licensed under either of:
+Licensed under either of:
 
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+- MIT License ([LICENSE-MIT](LICENSE-MIT))

@@ -3,8 +3,5 @@
   "identifier": "default",
   "description": "Default capability for the FCM example app",
   "windows": ["main"],
-  "permissions": [
-    "core:default",
-    "fcm:default"
-  ]
+  "permissions": ["core:default", "fcm:default"]
 }

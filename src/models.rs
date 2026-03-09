@@ -6,13 +6,15 @@ pub struct FcmToken {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PermissionStatus {
-    pub status: String,
+#[serde(rename_all = "kebab-case")]
+pub enum PermissionState {
+    Granted,
+    Denied,
+    Prompt,
+    PromptWithRationale,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct PermissionOptions {
-    pub sound: Option<bool>,
-    pub badge: Option<bool>,
-    pub alert: Option<bool>,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PermissionStatus {
+    pub notification: PermissionState,
 }

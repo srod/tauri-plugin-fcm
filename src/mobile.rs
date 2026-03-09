@@ -3,7 +3,10 @@ use tauri::{
     AppHandle, Runtime,
 };
 
-use crate::models::{FcmToken, PermissionOptions, PermissionStatus};
+use crate::models::{FcmToken, PermissionStatus};
+
+#[cfg(target_os = "android")]
+const PLUGIN_IDENTIFIER: &str = "com.plugin.fcm";
 
 tauri::ios_plugin_binding!(init_plugin_fcm);
 
@@ -14,12 +17,9 @@ impl<R: Runtime> Fcm<R> {
         self.0.run_mobile_plugin("getToken", ()).map_err(Into::into)
     }
 
-    pub fn request_permission(
-        &self,
-        options: PermissionOptions,
-    ) -> crate::Result<PermissionStatus> {
+    pub fn request_permissions(&self) -> crate::Result<PermissionStatus> {
         self.0
-            .run_mobile_plugin("requestPermission", options)
+            .run_mobile_plugin("requestPermissions", ())
             .map_err(Into::into)
     }
 
@@ -45,7 +45,7 @@ pub fn init<R: Runtime>(
     api: PluginApi<R, ()>,
 ) -> std::result::Result<Fcm<R>, Box<dyn std::error::Error>> {
     #[cfg(target_os = "android")]
-    let handle = api.register_android_plugin("com.plugin.fcm", "FcmPlugin")?;
+    let handle = api.register_android_plugin(PLUGIN_IDENTIFIER, "FcmPlugin")?;
     #[cfg(target_os = "ios")]
     let handle = api.register_ios_plugin(init_plugin_fcm)?;
 

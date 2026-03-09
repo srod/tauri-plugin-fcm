@@ -4,13 +4,27 @@
   "description": "Tauri 2 plugin for Firebase Cloud Messaging (FCM) — iOS APNs→FCM token exchange + Android FCM",
   "license": "MIT OR Apache-2.0",
   "type": "module",
-  "main": "dist-js/index.js",
-  "types": "dist-js/index.d.ts",
+  "packageManager": "bun@1.3.10",
+  "types": "./dist-js/index.d.ts",
+  "main": "./dist-js/index.cjs",
+  "module": "./dist-js/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist-js/index.d.ts",
+      "import": "./dist-js/index.js",
+      "require": "./dist-js/index.cjs"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tauri-apps/tauri-plugin-fcm"
   },
-  "files": ["dist-js", "README.md", "LICENSE-MIT", "LICENSE-APACHE"],
+  "files": [
+    "dist-js",
+    "README.md",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -19,17 +33,31 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "prepublishOnly": "npm run build"
+    "lint": "bunx biome check .",
+    "lint:fix": "bunx biome check --write .",
+    "format": "bunx biome format --write .",
+    "format:check": "bunx biome format .",
+    "typecheck": "bunx tsc --noEmit --project guest-js/tsconfig.json",
+    "prepublishOnly": "bun run build",
+    "test": "bun run build && node --test"
   },
-  "peerDependencies": {
-    "@tauri-apps/api": ">=2.0.0"
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0"
   },
   "devDependencies": {
-    "@tauri-apps/api": "^2.0.0",
+    "@biomejs/biome": "2.4.6",
     "typescript": "^5.0.0",
     "@rollup/plugin-typescript": "^12.0.0",
     "rollup": "^4.0.0",
     "tslib": "^2.6.0"
   },
-  "keywords": ["tauri", "tauri-plugin", "fcm", "firebase", "push-notifications", "ios", "android"]
+  "keywords": [
+    "tauri",
+    "tauri-plugin",
+    "fcm",
+    "firebase",
+    "push-notifications",
+    "ios",
+    "android"
+  ]
 }

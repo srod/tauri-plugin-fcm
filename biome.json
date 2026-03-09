@@ -1,0 +1,38 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "package.json",
+      "rollup.config.js",
+      "biome.json",
+      "guest-js/**/*.ts",
+      "guest-js/**/*.json",
+      "examples/*/src/**/*.ts",
+      "examples/*/src/**/*.html",
+      "examples/*/src-tauri/capabilities/**/*.json",
+      "test/**/*.mjs"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always"
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true
+    }
+  }
+}

@@ -1,20 +1,21 @@
 // tauri-plugin-fcm example
 // In a real app, import from 'tauri-plugin-fcm' (npm package).
 // Here we use relative path to the guest-js source for development.
-import {
-  getToken,
-  requestPermission,
-  checkPermissions,
-  register,
-  deleteToken,
-  onTokenRefresh,
-  onPushError,
-} from "../../../guest-js/index.ts";
+
 import type {
   FcmToken,
-  PermissionStatus,
-  TokenRefreshEvent,
+  PermissionState,
   PushErrorEvent,
+  TokenRefreshEvent,
+} from "../../../guest-js/index.ts";
+import {
+  checkPermissions,
+  deleteToken,
+  getToken,
+  onPushError,
+  onTokenRefresh,
+  register,
+  requestPermissions,
 } from "../../../guest-js/index.ts";
 
 const output = document.getElementById("output") as HTMLPreElement;
@@ -43,23 +44,19 @@ async function setupListeners(): Promise<void> {
 
 async function handleCheckPermissions(): Promise<void> {
   try {
-    const result: PermissionStatus = await checkPermissions();
-    log(`checkPermissions → ${result.status}`);
+    const result: PermissionState = await checkPermissions();
+    log(`checkPermissions → ${result}`);
   } catch (err) {
     log(`checkPermissions error: ${err}`);
   }
 }
 
-async function handleRequestPermission(): Promise<void> {
+async function handleRequestPermissions(): Promise<void> {
   try {
-    const result: PermissionStatus = await requestPermission({
-      sound: true,
-      badge: true,
-      alert: true,
-    });
-    log(`requestPermission → ${result.status}`);
+    const result: PermissionState = await requestPermissions();
+    log(`requestPermissions → ${result}`);
   } catch (err) {
-    log(`requestPermission error: ${err}`);
+    log(`requestPermissions error: ${err}`);
   }
 }
 
@@ -92,11 +89,19 @@ async function handleDeleteToken(): Promise<void> {
 
 // --- Wire up buttons ---
 
-document.getElementById("btn-check")?.addEventListener("click", handleCheckPermissions);
-document.getElementById("btn-request")?.addEventListener("click", handleRequestPermission);
-document.getElementById("btn-register")?.addEventListener("click", handleRegister);
+document
+  .getElementById("btn-check")
+  ?.addEventListener("click", handleCheckPermissions);
+document
+  .getElementById("btn-request")
+  ?.addEventListener("click", handleRequestPermissions);
+document
+  .getElementById("btn-register")
+  ?.addEventListener("click", handleRegister);
 document.getElementById("btn-token")?.addEventListener("click", handleGetToken);
-document.getElementById("btn-delete")?.addEventListener("click", handleDeleteToken);
+document
+  .getElementById("btn-delete")
+  ?.addEventListener("click", handleDeleteToken);
 document.getElementById("btn-clear")?.addEventListener("click", () => {
   output.textContent = "";
 });
