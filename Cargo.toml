@@ -1,0 +1,22 @@
+[package]
+name = "tauri-plugin-fcm"
+version = "0.1.0"
+edition = "2021"
+links = "tauri-plugin-fcm"
+description = "Tauri 2 plugin for Firebase Cloud Messaging"
+license = "MIT OR Apache-2.0"
+keywords = ["tauri", "plugin", "fcm", "firebase", "push-notifications"]
+categories = ["api-bindings", "mobile"]
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+
+[dependencies]
+tauri = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"

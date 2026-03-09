@@ -1,0 +1,28 @@
+# Rust
+target/
+Cargo.lock
+
+# Node
+node_modules/
+
+# Tauri build artifacts
+dist-js/
+ios/.tauri/
+ios/.build/
+ios/Package.resolved
+.build/
+.tauri/
+*.ipa
+*.apk
+
+# Example app artifacts
+examples/*/src-tauri/target/
+examples/*/src-tauri/Cargo.lock
+examples/*/src-tauri/gen/
+
+# Firebase config (host app provides these)
+GoogleService-Info.plist
+google-services.json
+
+# Sisyphus
+.sisyphus/
