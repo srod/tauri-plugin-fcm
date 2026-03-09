@@ -6,6 +6,22 @@ import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
 
+// MARK: - Command Arguments
+
+struct CreateChannelArgs: Decodable {
+  let id: String
+  let name: String
+  let importance: UInt32
+}
+
+struct SendNotificationArgs: Decodable {
+  let title: String
+  let body: String?
+  let icon: String?
+  let id: Int?
+  let channelId: String?
+}
+
 class FcmPlugin: Plugin, MessagingDelegate {
 
   private let tokenBuffer = TokenBuffer()
@@ -115,6 +131,31 @@ class FcmPlugin: Plugin, MessagingDelegate {
       }
 
       invoke.resolve()
+    }
+  }
+
+  @objc public func createChannel(_ invoke: Invoke) throws {
+    let _ = try invoke.parseArgs(CreateChannelArgs.self)
+    invoke.resolve()
+  }
+
+  @objc public func sendNotification(_ invoke: Invoke) throws {
+    let args = try invoke.parseArgs(SendNotificationArgs.self)
+
+    let content = UNMutableNotificationContent()
+    content.title = args.title
+    content.body = args.body ?? ""
+    content.sound = .default
+
+    let identifier = args.id.map { String($0) } ?? String(Int.random(in: 0..<Int.max))
+    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: nil)
+
+    UNUserNotificationCenter.current().add(request) { error in
+      if let error = error {
+        invoke.reject(error.localizedDescription)
+      } else {
+        invoke.resolve()
+      }
     }
   }
 
