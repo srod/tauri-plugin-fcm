@@ -1,0 +1,9 @@
+[default]
+description = "Default permissions for the FCM plugin"
+permissions = [
+    "allow-get-token",
+    "allow-request-permission",
+    "allow-check-permissions",
+    "allow-register",
+    "allow-delete-token",
+]
