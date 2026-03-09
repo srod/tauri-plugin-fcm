@@ -6,6 +6,7 @@ links = "tauri-plugin-fcm"
 description = "Tauri 2 plugin for Firebase Cloud Messaging"
 license = "MIT OR Apache-2.0"
 keywords = ["tauri", "plugin", "fcm", "firebase", "push-notifications"]
+repository = "https://github.com/srod/tauri-plugin-fcm"
 categories = ["api-bindings", "mobile"]
 
 [lib]
