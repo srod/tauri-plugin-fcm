@@ -11,6 +11,7 @@ Default permissions for the FCM plugin
 - `allow-delete-token`
 - `allow-create-channel`
 - `allow-send-notification`
+- `allow-register-listener`
 
 ## Permission Table
 
@@ -147,6 +148,32 @@ Enables the register command without any pre-configured scope.
 <td>
 
 Denies the register command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:allow-register-listener`
+
+</td>
+<td>
+
+Enables the register_listener command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:deny-register-listener`
+
+</td>
+<td>
+
+Denies the register_listener command without any pre-configured scope.
 
 </td>
 </tr>
