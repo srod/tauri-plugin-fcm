@@ -31,3 +31,13 @@ bun run test
 - `PermissionState` values: `granted`, `denied`, `prompt`, `prompt-with-rationale` (Android only)
 - Formatting: `cargo fmt` for Rust, Biome for TS/JS/JSON
 - `@tauri-apps/api` is a direct dependency, not a peer dependency
+
+## Releases
+
+Every publish to crates.io + npm **must** have a matching git tag:
+
+```sh
+git tag v$VERSION && git push origin v$VERSION
+```
+
+Tag format: `v0.1.4` (semver with `v` prefix). Tag the commit that bumps `version` in both `Cargo.toml` and `package.json`.
