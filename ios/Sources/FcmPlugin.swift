@@ -48,7 +48,7 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
     #else
       // Defer so JS event listeners have time to attach after plugin init.
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-        try? self?.trigger("push-error", data: ["error": "Push notifications not available on simulator"])
+        self?.trigger("push-error", data: ["error": "Push notifications not available on simulator"])
       }
     #endif
   }
@@ -76,7 +76,7 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
     }
   }
 
-  @objc public func requestPermissions(_ invoke: Invoke) throws {
+  @objc public override func requestPermissions(_ invoke: Invoke) {
     UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge, .alert]) { granted, error in
       if let error = error {
         invoke.reject(error.localizedDescription)
@@ -173,7 +173,11 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
        previous.responds(to: #selector(UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:))) {
       previous.userNotificationCenter?(center, willPresent: notification, withCompletionHandler: completionHandler)
     } else {
-      completionHandler([.banner, .sound])
+      if #available(iOS 14.0, *) {
+        completionHandler([.banner, .sound])
+      } else {
+        completionHandler([.alert, .sound])
+      }
     }
   }
 
@@ -198,7 +202,7 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
     }
 
     tokenBuffer.store(token: token)
-    try? trigger("token-refresh", data: ["token": token])
+    trigger("token-refresh", data: ["token": token])
   }
 }
 
