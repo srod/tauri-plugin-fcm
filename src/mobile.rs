@@ -8,6 +8,7 @@ use crate::models::{CreateChannelArgs, FcmToken, PermissionStatus, SendNotificat
 #[cfg(target_os = "android")]
 const PLUGIN_IDENTIFIER: &str = "com.plugin.fcm";
 
+#[cfg(target_os = "ios")]
 tauri::ios_plugin_binding!(init_plugin_fcm);
 
 pub struct Fcm<R: Runtime>(PluginHandle<R>);
