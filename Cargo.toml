@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-fcm"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 links = "tauri-plugin-fcm"
 description = "Tauri 2 plugin for Firebase Cloud Messaging"

@@ -90,9 +90,15 @@ enum AppDelegateSwizzler {
 
     let block: @convention(block) (AnyObject, UIApplication, NSError) -> Void = {
       selfObj, app, error in
+      let description = error.localizedDescription
+
+      // Buffer the error so getToken() can surface it directly instead
+      // of returning a generic "FCM token not available" rejection.
+      AppDelegateSwizzler.plugin?.errorBuffer.store(error: description)
+
       try? AppDelegateSwizzler.plugin?.trigger(
         "push-error",
-        data: ["error": error.localizedDescription]
+        data: ["error": description]
       )
 
       // Chain to the previous handler.

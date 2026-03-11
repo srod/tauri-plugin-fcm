@@ -206,7 +206,8 @@ await sendNotification({
 
 - This is a mobile-only plugin. If you share Tauri setup code across desktop and mobile targets, gate registration with `#[cfg(mobile)]`.
 - On Android, `register()` is effectively a no-op because FCM registration is automatic.
-- On iOS simulators, remote notification transport is unavailable. The plugin emits `push-error` instead of crashing.
+- On iOS simulators, `register()` rejects with `"Push notifications not available on simulator"`. A `push-error` event also fires once at startup (from `load()`) for listeners attached early.
+- On iOS, if APNs registration fails (missing entitlement, cert mismatch, no network), the error is buffered and surfaced by the next `getToken()` call. The `push-error` event also fires for listeners.
 - `createChannel()` is Android-only and is a no-op on iOS.
 - On Android API 26+, calling `sendNotification()` before `createChannel()` will silently drop the notification.
 

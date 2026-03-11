@@ -25,6 +25,7 @@ struct SendNotificationArgs: Decodable {
 class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
 
   private let tokenBuffer = TokenBuffer()
+  let errorBuffer = RegistrationErrorBuffer()
   private weak var previousNotificationDelegate: UNUserNotificationCenterDelegate?
 
   // MARK: - Lifecycle
@@ -60,6 +61,10 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
       if let error = error {
         if let buffered = self?.tokenBuffer.consume() {
           invoke.resolve(["token": buffered])
+        } else if let apnsError = self?.errorBuffer.consume() {
+          // Surface the APNs registration error (e.g. missing entitlement,
+          // cert mismatch) instead of the generic Firebase error.
+          invoke.reject(apnsError)
         } else {
           invoke.reject(error.localizedDescription)
         }
@@ -70,6 +75,8 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
         invoke.resolve(["token": token])
       } else if let buffered = self?.tokenBuffer.consume() {
         invoke.resolve(["token": buffered])
+      } else if let apnsError = self?.errorBuffer.consume() {
+        invoke.reject(apnsError)
       } else {
         invoke.reject("FCM token not available")
       }
@@ -121,8 +128,10 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
       }
       invoke.resolve()
     #else
-      trigger("push-error", data: ["error": "Push notifications not available on simulator"])
-      invoke.resolve()
+      // Reject directly so callers get an immediate error without needing
+      // a separate onPushError listener. The load()-time push-error event
+      // still fires as a diagnostic for listeners attached at startup.
+      invoke.reject("Push notifications not available on simulator")
     #endif
   }
 
@@ -201,6 +210,8 @@ class FcmPlugin: Plugin, MessagingDelegate, UNUserNotificationCenterDelegate {
       return
     }
 
+    // Successful token delivery supersedes any previous APNs error.
+    errorBuffer.clear()
     tokenBuffer.store(token: token)
     trigger("token-refresh", data: ["token": token])
   }
