@@ -9,4 +9,5 @@ permissions = [
     "allow-create-channel",
     "allow-send-notification",
     "allow-register-listener",
+    "allow-remove-listener",
 ]

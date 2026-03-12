@@ -12,6 +12,7 @@ Default permissions for the FCM plugin
 - `allow-create-channel`
 - `allow-send-notification`
 - `allow-register-listener`
+- `allow-remove-listener`
 
 ## Permission Table
 
@@ -174,6 +175,32 @@ Enables the register_listener command without any pre-configured scope.
 <td>
 
 Denies the register_listener command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:allow-remove-listener`
+
+</td>
+<td>
+
+Enables the remove_listener command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`fcm:deny-remove-listener`
+
+</td>
+<td>
+
+Denies the remove_listener command without any pre-configured scope.
 
 </td>
 </tr>

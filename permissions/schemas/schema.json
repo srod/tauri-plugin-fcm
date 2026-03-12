@@ -367,6 +367,18 @@
           "markdownDescription": "Denies the register_listener command without any pre-configured scope."
         },
         {
+          "description": "Enables the remove_listener command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-listener",
+          "markdownDescription": "Enables the remove_listener command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_listener command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-listener",
+          "markdownDescription": "Denies the remove_listener command without any pre-configured scope."
+        },
+        {
           "description": "Enables the request_permissions command without any pre-configured scope.",
           "type": "string",
           "const": "allow-request-permissions",
@@ -391,10 +403,10 @@
           "markdownDescription": "Denies the send_notification command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`\n- `allow-create-channel`\n- `allow-send-notification`\n- `allow-register-listener`",
+          "description": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`\n- `allow-create-channel`\n- `allow-send-notification`\n- `allow-register-listener`\n- `allow-remove-listener`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`\n- `allow-create-channel`\n- `allow-send-notification`\n- `allow-register-listener`"
+          "markdownDescription": "Default permissions for the FCM plugin\n#### This default permission set includes:\n\n- `allow-get-token`\n- `allow-request-permissions`\n- `allow-check-permissions`\n- `allow-register`\n- `allow-delete-token`\n- `allow-create-channel`\n- `allow-send-notification`\n- `allow-register-listener`\n- `allow-remove-listener`"
         }
       ]
     }

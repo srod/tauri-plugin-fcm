@@ -7,6 +7,7 @@ const COMMANDS: &[&str] = &[
     "create_channel",
     "send_notification",
     "register_listener",
+    "remove_listener",
 ];
 
 fn main() {
