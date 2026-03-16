@@ -23,18 +23,18 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @InvokeArg
 data class CreateChannelArgs(
-    val id: String,
-    val name: String,
-    val importance: Int
+    val id: String = "",
+    val name: String = "",
+    val importance: Int = 0
 )
 
 @InvokeArg
 data class SendNotificationArgs(
-    val title: String,
-    val body: String?,
-    val icon: String?,
-    val id: Int?,
-    val channelId: String?
+    val title: String = "",
+    val body: String? = null,
+    val icon: String? = null,
+    val id: Int? = null,
+    val channelId: String? = null
 )
 
 @TauriPlugin(
