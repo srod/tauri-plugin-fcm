@@ -23,7 +23,7 @@ test("biome config exists and ignores generated output", async () => {
   const raw = await readFile(new URL("../biome.json", import.meta.url), "utf8");
   const config = JSON.parse(raw);
 
-  assert.equal(config.$schema, "https://biomejs.dev/schemas/2.4.6/schema.json");
+  assert.equal(config.$schema, "https://biomejs.dev/schemas/2.4.7/schema.json");
   assert.ok(config.files?.includes?.includes("guest-js/**/*.ts"));
   assert.ok(config.files?.includes?.includes("examples/*/src/**/*.ts"));
   assert.ok(config.files?.includes?.includes("examples/*/src/**/*.html"));
@@ -38,5 +38,5 @@ test("biome config exists and ignores generated output", async () => {
 test("package.json pins the current Biome version", async () => {
   const pkg = await readPackageJson();
 
-  assert.equal(pkg.devDependencies?.["@biomejs/biome"], "2.4.6");
+  assert.equal(pkg.devDependencies?.["@biomejs/biome"], "2.4.7");
 });

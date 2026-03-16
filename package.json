@@ -1,6 +1,6 @@
 {
   "name": "tauri-plugin-fcm",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Tauri 2 plugin for Firebase Cloud Messaging (FCM) — iOS APNs→FCM token exchange + Android FCM",
   "license": "MIT OR Apache-2.0",
   "type": "module",
@@ -39,13 +39,13 @@
     "format:check": "bunx biome format .",
     "typecheck": "bunx tsc --noEmit --project guest-js/tsconfig.json",
     "prepublishOnly": "bun run build",
-    "test": "bun run build && node --test"
+    "test": "bun run build && node --test 'test/*.test.mjs'"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.6",
+    "@biomejs/biome": "2.4.7",
     "typescript": "^5.0.0",
     "@rollup/plugin-typescript": "^12.0.0",
     "rollup": "^4.0.0",

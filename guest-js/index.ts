@@ -143,7 +143,7 @@ export async function onPushError(
 export async function createChannel(
   options: CreateChannelOptions,
 ): Promise<void> {
-  await invoke("plugin:fcm|create_channel", options);
+  await invoke("plugin:fcm|create_channel", { args: options });
 }
 
 /**
@@ -155,5 +155,5 @@ export async function createChannel(
 export async function sendNotification(
   options: SendNotificationOptions,
 ): Promise<void> {
-  await invoke("plugin:fcm|send_notification", options);
+  await invoke("plugin:fcm|send_notification", { args: options });
 }
