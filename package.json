@@ -1,6 +1,6 @@
 {
   "name": "tauri-plugin-fcm",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "Tauri 2 plugin for Firebase Cloud Messaging (FCM) — iOS APNs→FCM token exchange + Android FCM",
   "license": "MIT OR Apache-2.0",
   "type": "module",

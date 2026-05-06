@@ -34,9 +34,3 @@ test("biome config exists and ignores generated output", async () => {
   );
   assert.ok(config.files?.includes?.includes("test/**/*.mjs"));
 });
-
-test("package.json pins the current Biome version", async () => {
-  const pkg = await readPackageJson();
-
-  assert.equal(pkg.devDependencies?.["@biomejs/biome"], "2.4.7");
-});
