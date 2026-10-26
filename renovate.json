@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["gradle"],
+      "registryUrls": [
+        "https://dl.google.com/android/maven2",
+        "https://repo.maven.apache.org/maven2"
+      ]
+    }
   ]
 }
